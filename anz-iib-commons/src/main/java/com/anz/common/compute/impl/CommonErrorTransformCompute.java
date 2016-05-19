@@ -4,7 +4,6 @@
 package com.anz.common.compute.impl;
 
 import com.anz.common.compute.TransformType;
-import com.anz.common.ioc.spring.MbNodefactory;
 import com.anz.common.transform.ITransformer;
 import com.ibm.broker.plugin.MbElement;
 import com.ibm.broker.plugin.MbMessage;
@@ -28,15 +27,6 @@ public abstract class CommonErrorTransformCompute extends CommonJavaCompute {
 			MbMessage inMessage = inAssembly.getMessage();
 			MbMessage outMessage = outAssembly.getMessage();
 			
-			/* 
-			 * Set the compute node in the node factory so that 
-			 * Transform classes can use the jdbc type4 connection datasource later
-			 * @see #IIBJdbc4DataSource
-			 * @see #AnzSpringIoCFactory
-			 */
-			MbNodefactory.getInstance().setMbNode(this);
-			
-			
 			/*
 			 * Set the HTTPResponseHeader to Http 1.0/500 Internal Server Error
 			 * Only for HTTP flows and when the error is not already set something else
@@ -45,8 +35,10 @@ public abstract class CommonErrorTransformCompute extends CommonJavaCompute {
 			TransformType transformType = getTransformationType();
 			if((transformType.equals(TransformType.HTTP_HHTP) || transformType.equals(TransformType.HTTP_MQ))
 					&& outMessage.getRootElement().getFirstElementByPath("HTTPResponseHeader") == null) {
+
+				ComputeUtils.setElementInTree("application/json", outMessage, "Properties", "ContentType");
 				MbElement replyStatusCode = ComputeUtils.setHttpReplyStatus(outAssembly, "500");
-				logger.info("Setting http reply status code: ", replyStatusCode);
+				logger.info("Setting http reply status code: {} ", replyStatusCode);
 			}
 			
 			

@@ -4,11 +4,16 @@
 package com.anz.common.compute.impl;
 
 import org.apache.logging.log4j.LogManager;
+
 import org.apache.logging.log4j.Logger;
 
 import com.anz.common.compute.ComputeInfo;
 import com.anz.common.compute.ICommonJavaCompute;
+import com.anz.common.compute.OutputTarget;
+import com.anz.common.ioc.spring.MbNodefactory;
+import com.ibm.broker.config.proxy.MessageFlowProxy;
 import com.ibm.broker.javacompute.MbJavaComputeNode;
+import com.ibm.broker.plugin.MbElement;
 import com.ibm.broker.plugin.MbException;
 import com.ibm.broker.plugin.MbMessage;
 import com.ibm.broker.plugin.MbMessageAssembly;
@@ -23,13 +28,15 @@ public abstract class CommonJavaCompute extends MbJavaComputeNode implements
 		ICommonJavaCompute {
 	
 	
-	static Logger logger = LogManager.getLogger();
-	static Logger appLogger = LogManager.getLogger();
+	protected static Logger logger = LogManager.getLogger();
+	protected static Logger appLogger = LogManager.getLogger();
 	
 	ComputeInfo metaData;
 	
 
 	/**
+	 * The compute information to be used for transformation
+	 * This information is available to the transformer classes as well.
 	 * @return the metaData
 	 */
 	public ComputeInfo getMetaData() {
@@ -96,19 +103,36 @@ public abstract class CommonJavaCompute extends MbJavaComputeNode implements
 	 */
 	@SuppressWarnings("unused")
 	public void evaluate(MbMessageAssembly inAssembly) throws MbException {
-		MbOutputTerminal out = getOutputTerminal("out");
-		MbOutputTerminal alt = getOutputTerminal("alternate");
-
+		
 		MbMessage inMessage = inAssembly.getMessage();
 		MbMessageAssembly outAssembly = null;
 		try {
-			// create new message as a copy of the input
+			// create new message 
 			MbMessage outMessage = new MbMessage(inMessage);
-			outAssembly = new MbMessageAssembly(inAssembly, outMessage);
+			outAssembly = new MbMessageAssembly(inAssembly, outMessage);			
+
+			// copy input message headers to the new output
+			// Since outMessage is copy of inMessage this is not required.
+			// copyMessageHeaders(inMessage, outMessage);
+			
 			// ----------------------------------------------------------
 			// Add user code below
 			
+			
+			/* 
+			 * Set the compute node in the node factory so that 
+			 * Transform classes can use the jdbc type4 connection datasource later
+			 * @see #IIBJdbc4DataSource
+			 * @see #AnzSpringIoCFactory
+			 */
+			MbNodefactory.getInstance().setMbNode(this);
+			
+			// set the user defined properties as required
+			prepareForTransformation(metaData, inAssembly, outAssembly);
+			
 			execute(inAssembly, outAssembly);
+			
+			executeAfterTransformation(metaData, inAssembly, outAssembly);
 			
 
 			// End of user code
@@ -128,11 +152,40 @@ public abstract class CommonJavaCompute extends MbJavaComputeNode implements
 		}
 		// The following should only be changed
 		// if not propagating message to the 'out' terminal
-		out.propagate(outAssembly);
+		getOutputTerminal().propagate(outAssembly);
 
 	}
 
 
+	private MbOutputTerminal getOutputTerminal() {
+
+		MbOutputTerminal out = getOutputTerminal("out");
+		MbOutputTerminal alt = getOutputTerminal("alternate");
+		
+		if(OutputTarget.ALTERNATE == metaData.getOutputTarget()) {
+			return alt;
+		}
+		
+		return out;
+
+	}
+
+
+
+	protected void copyMessageHeaders(MbMessage inMessage, MbMessage outMessage)
+			throws MbException {
+		MbElement outRoot = outMessage.getRootElement();
+
+		// iterate though the headers starting with the first child of the root
+		// element and stopping before the last child (message body)
+		MbElement header = inMessage.getRootElement().getFirstChild();
+		while (header != null && header.getNextSibling() != null) {
+			// copy the header and add it to the out message
+			outRoot.addAsLastChild(header.copy());
+			// move along to next header
+			header = header.getNextSibling();
+		}
+	}
 
 
 	/**
@@ -145,6 +198,29 @@ public abstract class CommonJavaCompute extends MbJavaComputeNode implements
 	 */
 	public abstract void  execute(MbMessageAssembly inAssembly,
 			MbMessageAssembly outAssembly) throws Exception;
+	
+	/**
+	 * Save any user provided properties to local environment or to metadata for this instance of message flow execution
+	 * Such as Incident Area
+	 * These values will be available to transformer class in metadata
+	 * @param metadata
+	 * @param inAssembly
+	 * @param outAssembly
+	 */
+	public void prepareForTransformation(ComputeInfo metadata, MbMessageAssembly inAssembly, MbMessageAssembly outAssembly) {
+		// Default implementation is empty
+	}
+	
+	/**
+	 * This method is executed after transformation
+	 * @param metadata
+	 * @param inAssembly
+	 * @param outAssembly
+	 */
+	public void executeAfterTransformation(ComputeInfo metadata, MbMessageAssembly inAssembly, MbMessageAssembly outAssembly) {
+		// Default implementation is empty
+	}
+	
 
 
 

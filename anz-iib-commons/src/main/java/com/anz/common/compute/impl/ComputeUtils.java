@@ -3,6 +3,14 @@
  */
 package com.anz.common.compute.impl;
 
+import java.util.Properties;
+
+import com.anz.common.cache.impl.CacheHandlerFactory;
+import com.anz.common.transform.TransformUtils;
+import com.ibm.broker.config.proxy.BrokerProxy;
+import com.ibm.broker.config.proxy.ConfigManagerProxyLoggedException;
+import com.ibm.broker.config.proxy.ConfigManagerProxyPropertyNotInitializedException;
+import com.ibm.broker.config.proxy.ConfigurableService;
 import com.ibm.broker.plugin.MbBLOB;
 import com.ibm.broker.plugin.MbElement;
 import com.ibm.broker.plugin.MbException;
@@ -181,4 +189,51 @@ public class ComputeUtils {
 		return replyStatusCode;
 	}
 
+	/**
+	 * Insert a new element if does not exist or change value of existing element
+	 * @param value to be set to element
+	 * @param message LocalEnvironment or Message
+	 * @param path an array of strings of the elements in the path e.g. "Destination", "HTTP", "RequestIdentifier"
+	 * @return the element with its value set to new value
+	 * @throws MbException
+	 */
+	public static MbElement setElementInTree(Object value, MbMessage message, String... path ) throws MbException {
+		MbElement prevElement = message.getRootElement();		
+		
+		for(int i=0; i < path.length -1; i++ ) {
+			String elementKey = path[i];
+			MbElement element = prevElement.getFirstElementByPath(elementKey);
+			element = element == null ? 
+					prevElement.createElementAsFirstChild(MbElement.TYPE_NAME, elementKey,null) : 
+						element;
+			prevElement = element;
+		}
+		String lastElementKey = path[path.length -1];	
+		MbElement lastElement = prevElement.getFirstElementByPath(lastElementKey);
+		if(lastElement == null) {
+			lastElement = prevElement.createElementAsFirstChild(MbElement.TYPE_NAME_VALUE, lastElementKey, value);
+		} else {
+			lastElement.setValue(value);
+		}
+		return lastElement;
+	}
+
+	public static String getGlobalVariable(String key) throws Exception {
+		Properties props = null;
+		String value = CacheHandlerFactory.getInstance().lookupCache("UserDefinedPropetiesCache", "nodeProperties");
+		if(value == null) { 
+			BrokerProxy b = BrokerProxy.getLocalInstance();
+			while(!b.hasBeenPopulatedByBroker()) { Thread.sleep(100); } 
+			ConfigurableService myUDCS = b.getConfigurableService("UserDefined", "NodeProperties");
+			props = myUDCS.getProperties();
+			if(props != null) {
+				CacheHandlerFactory.getInstance().updateCache("UserDefinedPropetiesCache", "nodeProperties", TransformUtils.toJSON(props));
+			}
+		} else {
+			props = TransformUtils.fromJSON(value, Properties.class);
+		}
+		
+		String variable = props.getProperty(key);
+		return variable;
+	}
 }

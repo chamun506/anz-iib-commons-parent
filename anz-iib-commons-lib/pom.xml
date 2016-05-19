@@ -28,7 +28,7 @@
 		</profile>	
 	</profiles>
 	<build>
-		<directory>/root/git/anz-iib-commons-parent/anz-iib-commons-libzip/target</directory>
+		
 		<plugins>
 			<plugin>
 			    <groupId>com.coderplus.maven.plugins</groupId>
@@ -135,7 +135,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										 <execute/>
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
@@ -146,7 +146,20 @@
 		</pluginManagement>
 	</build>
 
-
+	<dependencies>
+		<dependency>
+			<groupId>anz-iib-commons-parent</groupId>
+			<artifactId>anz-iib-commons</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<classifier>jar-with-dependencies</classifier>
+			<exclusions>
+        		<exclusion>
+         	     	<groupId>*</groupId>
+                 	<artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+		</dependency>
+	</dependencies>
 	<distributionManagement>
                 <repository>
                         <id>release</id>

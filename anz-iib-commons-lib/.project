@@ -3,9 +3,6 @@
 	<name>anz-iib-commons-lib</name>
 	<comment></comment>
 	<projects>
-		<project>anz-iib-commons</project>
-		
-		
 	</projects>
 	<buildSpec>
 		<buildCommand>
