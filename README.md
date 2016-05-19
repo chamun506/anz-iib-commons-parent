@@ -1,5 +1,5 @@
 # iib-maven-plugin
-** Download the Plug-In using
+** Download the Plug-In to a directory such as /root/temp
 - mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -DrepoUrl=http://www.vadosity.com:8080/nexus/ -Dartifact=ch.sbb.maven.plugins:iib-maven-plugin:9.0-SNAPSHOT -Ddest=iib-maven-
 plugin-9.0-20160205.025406-86.jar
 
