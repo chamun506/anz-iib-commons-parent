@@ -4,7 +4,7 @@
 plugin-9.0-20160205.025406-86.jar
 
 ** Install the IBM IntegrationAPI.jar in your local repository
-- mvn install:install-file -DgroupId=com.ibm.broker.config  -DartifactId=proxy -Dversion=10.0.0.4 -Dpackaging=jar -Dfile="/root/IIB/iib-10.0.0.4/common/classes/IntegrationAPI.jar"
+- mvn install:install-file -DgroupId=com.ibm.broker.config.proxy  -DartifactId=IntegrationAPI -Dversion=10.0.0.4 -Dpackaging=jar -Dfile="/root/IIB/iib-10.0.0.4/common/classes/IntegrationAPI.jar"
 
 ** Install the Plug-In in your local repository
 - mvn install:install-file -Dfile=/root/temp/iib-maven-plugin-9.0-20160205.025406-86.jar -DgroupId=ch.sbb.maven.plugins -DartifactId=iib-maven-plugin -Dversion=9.0-SNAPSHOT -Dpackaging=jar
