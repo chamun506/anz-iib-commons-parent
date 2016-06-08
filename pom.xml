@@ -4,28 +4,40 @@
                              http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>anz-iib-commons-parent</groupId>
-    <artifactId>common-libraries-parent-pom</artifactId>
+    <groupId>com.anz</groupId>
+    <artifactId>anz-iib-commons-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
-    <name>Simple Parent Project</name>
+    <version>1.0.7-SNAPSHOT</version>
+
+ 
 
     <modules>
+		<module>anz-iib-dependencies</module>
 		<module>anz-iib-commons</module>
 		<module>anz-iib-commons-lib</module>
-		
-   	
+		<module>package</module>  
     </modules>
+     
+    <properties>
+        <scm.url>https://dev1@10.52.36.21:8443/r/iib/anz-iib-commons-parent.git</scm.url>
+    </properties>
+
+   
+   <scm>
+       <url>scm:git:${scm.url}</url>
+       <connection>scm:git:${scm.url}</connection>
+       <developerConnection>scm:git:${scm.url}</developerConnection>
+   </scm> 
 
 	<distributionManagement>
                 <repository>
                         <id>release</id>
-                        <url>http://localhost:8081/artifactory/ext-release-local</url>
+                        <url>http://127.0.0.1:8081/artifactory/ext-release-local</url>
                         <uniqueVersion>true</uniqueVersion>
                 </repository>
                 <snapshotRepository>
                         <id>snapshot</id>
-                        <url>http://localhost:8081/artifactory/ext-snapshot-local</url>
+                        <url>http://127.0.0.1:8081/artifactory/ext-snapshot-local</url>
                         <uniqueVersion>true</uniqueVersion>
                 </snapshotRepository>
         </distributionManagement>

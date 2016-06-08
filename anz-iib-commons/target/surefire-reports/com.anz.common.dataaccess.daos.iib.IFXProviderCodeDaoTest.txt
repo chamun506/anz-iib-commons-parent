@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.anz.common.dataaccess.daos.iib.IFXProviderCodeDaoTest
--------------------------------------------------------------------------------
-Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.474 sec

@@ -1,0 +1,90 @@
+ #!/bin/bash
+ # This script deploys BAR files, stop & start Integration Server
+ 
+ # Input Parameters
+ # --e Integration Server Name - The name of the Integration Server
+ # --k Application Name - Integration Application Name
+ # --b BrokerName - The Name of the Integration Broker
+ # --c command - deploy or undeploy
+ # --v version - Bar File version 
+
+ iib_server=
+ iib_app=
+ iib_broker=
+ commands=
+ iib_bar_version=
+ iib_home= 
+ # Do user input function
+
+
+function usage() {
+ cat << EOF
+ usage: $0 options
+ This script deploys BAR files, stop & start Integration Server
+ OPTIONS:
+ -h Help
+ -e Integration Server Name 
+ -k  Application Name
+ -b Broker Name
+ -c Installation commands : [deploy][undeploy]
+ -v Integration bar version
+ -m Integration Home
+ EOF
+ }
+
+
+ function deployBAR() {
+ #Deploys a bar file  
+ . ${iib_home}/server/bin/mqsiprofile
+ ${iib_home}/server/bin/mqsideploy -e "${iib_server}" ${iib_broker} -a "${iib_app}-${iib_bar_version}.bar" 
+ # api deployment status
+ result=$?
+ if [[ $result -ne 0 ]]
+ then
+ echo "${command} of API archive $filename.aar failed."
+ exit 1
+ fi
+
+ }
+
+
+ function parseParameters() {
+ while getopts “l:s:p:c:” OPTION
+ do
+ case $OPTION in
+ h)
+ usage
+ exit 1
+ ;;
+ l)
+ zosconnect_install_dir=$OPTARG
+ ;;
+ s)
+ servername=$OPTARG
+ ;;
+ p)
+ filename=$OPTARG
+ ;;
+ c)
+ command=$OPTARG
+ ;;
+ ?)
+ usage
+ exit
+ ;;
+ esac
+ done
+ # ensure required params are not blank
+ echo "zosconnect_install_dir=$zosconnect_install_dir,servername=$servername,filename=$filename,command=$command"
+ if [[ -z $zosconnect_install_dir ]] || [[ -z $servername ]] || [[ -z $filename ]] || [[ -z $command ]]
+ then
+ usage
+ exit 1
+ fi
+ }
+ # start of main pogram
+ parseParameters $@
+ executeCommand
+ # Deployment complete
+ echo "Deployment of API archive $filename.aar is complete."
+ exit 0 

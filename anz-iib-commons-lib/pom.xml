@@ -1,10 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>anz-iib-commons-parent</groupId>
+	<parent>
+		<groupId>com.anz</groupId>
+		<artifactId>anz-iib-commons-parent</artifactId>
+		<version>1.0.7-SNAPSHOT</version>
+	</parent>
+
 	<artifactId>anz-iib-commons-lib</artifactId>
-	<version>1.0-RELEASE</version>
 	<packaging>iib-bar</packaging>
+	
 	<profiles>
 		<profile>
 			<id>localdev</id>
@@ -78,7 +83,6 @@
 					<timeoutSecs>${timeoutSecs}</timeoutSecs>
 					<!-- if timeouts occur on broker, then try command:  mqsichangebroker IB9NODE -g 300 -k 300 -->
 					<!-- to enable/disable decision services:  mqsimode IB9Node -x DecisionServices  -->
-					<zipFilePath>${basedir}/../../../</zipFilePath>
 					
 				</configuration>
 				<dependencies>
@@ -148,31 +152,27 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>anz-iib-commons-parent</groupId>
+			<groupId>com.anz</groupId>
 			<artifactId>anz-iib-commons</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<exclusions>
+        			<exclusion>
+         	     			<groupId>*</groupId>
+                 			<artifactId>*</artifactId>
+                		</exclusion>
+            		</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.anz</groupId>
+			<artifactId>anz-iib-dependencies</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<classifier>jar-with-dependencies</classifier>
 			<exclusions>
-        		<exclusion>
-         	     	<groupId>*</groupId>
-                 	<artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
+        			<exclusion>
+         	     			<groupId>*</groupId>
+                 			<artifactId>*</artifactId>
+                		</exclusion>
+            		</exclusions>
 		</dependency>
 	</dependencies>
-	<distributionManagement>
-                <repository>
-                        <id>release</id>
-                        <url>http://localhost:8081/artifactory/ext-release-local</url>
-                        <uniqueVersion>true</uniqueVersion>
-                </repository>
-                <snapshotRepository>
-                        <id>snapshot</id>
-                        <url>http://localhost:8081/artifactory/ext-snapshot-local</url>
-                        <uniqueVersion>true</uniqueVersion>
-                </snapshotRepository>
-        </distributionManagement>
-
-	
-
 </project>
